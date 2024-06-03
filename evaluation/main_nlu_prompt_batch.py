@@ -18,7 +18,7 @@ import torch
 import torch.nn.functional as F
 
 from peft import PeftModel
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, AutoModelForCausalLM, set_seed
+from transformers import AutoConfig, AutoTokenizer, AutoModelForSeq2SeqLM, AutoModelForCausalLM, set_seed
 from nusacrowd import NusantaraConfigHelper
 from nusacrowd.utils.constants import Tasks
 
@@ -106,6 +106,10 @@ if __name__ == '__main__':
     os.makedirs(out_dir, exist_ok=True) 
     os.makedirs(metric_dir, exist_ok=True) 
 
+    if os.path.exists(f'{metric_dir}/nlu_results_{prompt_lang}_{MODEL.split("/")[-1]}.csv'):
+        print(f'Skipping {metric_dir}/nlu_results_{prompt_lang}_{MODEL.split("/")[-1]}.csv')
+        sys.exit(0)
+
     # Load Prompt
     TASK_TYPE_TO_PROMPT = get_prompt(prompt_lang)
 
@@ -122,11 +126,12 @@ if __name__ == '__main__':
 
     # Load Model
     tokenizer = AutoTokenizer.from_pretrained(MODEL, truncation_side='left', padding_side='right', trust_remote_code=True)
+    config = AutoConfig.from_pretrained(MODEL, trust_remote_code=True)
     if ADAPTER != "":
         model = AutoModelForCausalLM.from_pretrained(MODEL, device_map="auto", load_in_8bit=True, trust_remote_code=True)
         model = PeftModel.from_pretrained(model, ADAPTER, torch_dtype=torch.float16)
         MODEL = ADAPTER # for file naming
-    elif "bloom" in MODEL or "xglm" in MODEL or "gpt2" in MODEL or "sealion7b" in MODEL or "Merak" in MODEL or "SeaLLM" in MODEL or  "Llama" in MODEL:
+    elif not config.is_encoder_decoder:
         model = AutoModelForCausalLM.from_pretrained(MODEL, device_map="auto", load_in_8bit=True, trust_remote_code=True)
         if "sealion7b" in MODEL:
             tokenizer.pad_token = tokenizer.eos_token # Use EOS to pad label

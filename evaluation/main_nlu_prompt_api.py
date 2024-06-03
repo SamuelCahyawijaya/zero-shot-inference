@@ -14,11 +14,6 @@ import pandas as pd
 from tqdm import tqdm
 from sklearn.metrics import classification_report, precision_recall_fscore_support
 
-import torch
-import torch.nn.functional as F
-
-from peft import PeftModel
-from transformers import AutoConfig, AutoTokenizer, AutoModelForSeq2SeqLM, AutoModelForCausalLM, set_seed
 from nusacrowd import NusantaraConfigHelper
 from nusacrowd.utils.constants import Tasks
 
@@ -94,13 +89,11 @@ if __name__ == '__main__':
     BATCH_SIZE = 1
     
     if 'gpt' in MODEL:
-        client = 'openai'
+        CLIENT = 'openai'
     else:
-        client = 'cohere'
+        CLIENT = 'cohere'
 
     SAVE_EVERY = 10
-    if len(sys.argv) == 5:
-        SAVE_EVERY = int(sys.argv[4])
 
     out_dir = './outputs_nlu'
     metric_dir = './metrics_nlu'
@@ -121,9 +114,6 @@ if __name__ == '__main__':
     print(f'Loaded {len(nlu_datasets)} NLU datasets')
     for i, dset_subset in enumerate(nlu_datasets.keys()):
         print(f'{i} {dset_subset}')
-
-    # Set seed before initializing model.
-    set_seed(42)
 
     metrics = []
     labels = []
@@ -156,7 +146,7 @@ if __name__ == '__main__':
         label_to_id_dict = { l : i for i, l in enumerate(label_names)}
         
         for prompt_id, prompt_template in enumerate(TASK_TYPE_TO_PROMPT[task_type.value]):
-            inputs, preds, golds = [], [], []
+            inputs, preds, outs, golds = [], [], [], []
             
             # Check saved data
             if exists(f'{out_dir}/{dset_subset}_{prompt_lang}_{prompt_id}_{MODEL.split("/")[-1]}.csv'):
@@ -166,6 +156,7 @@ if __name__ == '__main__':
                     for row in reader:
                         inputs.append(row["Input"])
                         preds.append(row["Pred"])
+                        outs.append(row["Out"])
                         golds.append(row["Gold"])
                 print(f"Skipping until {len(preds)}")
 
@@ -179,39 +170,40 @@ if __name__ == '__main__':
 
             # zero-shot inference
             count = 0
-            with torch.inference_mode():
-                for e, sample in tqdm(enumerate(test_dset)):
-                    if e < len(preds):
-                        continue
+            for e, sample in tqdm(enumerate(test_dset)):
+                if e < len(preds):
+                    continue
 
-                    # Single Instance Inference
-                    prompt_text = to_prompt(sample, prompt_template, label_names, prompt_lang)
-                    prompt_text = prompt_text.replace('[LABELS_CHOICE]', '')
-                    
-                    if CLIENT == 'cohere':
-                        out = cohere_api(cohere_client, input_text, system_text = '', model_name='command-r', max_tokens=16)
-                    else: # client == 'openai'
-                        out = openai_api(openai_client, input_text, system_text = '', model_name = 'gpt-3.5-turbo', max_tokens=16)
+                # Single Instance Inference
+                prompt_text = to_prompt(sample, prompt_template, label_names, prompt_lang)
+                prompt_text = prompt_text.replace('[LABELS_CHOICE]', '')
+                label = label_to_id_dict[sample['label']] if type(sample['label']) == str else sample['label']
 
-                    pred = out
-                    for label in labels:
-                        if label in out.lower():
-                            pred = label
-                            break
+                if CLIENT == 'cohere':
+                    out = cohere_api(cohere_client, prompt_text, system_text = '', model_name='command-r', max_tokens=16)
+                else: # client == 'openai'
+                    out = openai_api(openai_client, prompt_text, system_text = '', model_name = 'gpt-3.5-turbo', max_tokens=16)
 
-                    inputs.append(prompt_text)
-                    preds.append(pred)
-                    golds.append(label)
-                    count += 1
-                        
-                    if count == SAVE_EVERY:
-                        # partial saving
-                        inference_df = pd.DataFrame(list(zip(inputs, preds, golds)), columns =["Input", 'Pred', 'Gold'])
-                        inference_df.to_csv(f'{out_dir}/{dset_subset}_{prompt_lang}_{prompt_id}_{MODEL.split("/")[-1]}.csv', index=False)
-                        count = 0
+                pred = out
+                for i, label in enumerate(label_names):
+                    if label in out.lower():
+                        pred = label
+                        break
+
+                inputs.append(prompt_text)
+                preds.append(pred)
+                outs.append(out)
+                golds.append(label)
+                count += 1
+
+                if count == SAVE_EVERY:
+                    # partial saving
+                    inference_df = pd.DataFrame(list(zip(inputs, preds, outs, golds)), columns =["Input", 'Pred', 'Out', 'Gold'])
+                    inference_df.to_csv(f'{out_dir}/{dset_subset}_{prompt_lang}_{prompt_id}_{MODEL.split("/")[-1]}.csv', index=False)
+                    count = 0
                         
             # partial saving
-            inference_df = pd.DataFrame(list(zip(inputs, preds, golds)), columns =["Input", 'Pred', 'Gold'])
+            inference_df = pd.DataFrame(list(zip(inputs, preds, outs, golds)), columns =["Input", 'Pred', 'Out', 'Gold'])
             inference_df.to_csv(f'{out_dir}/{dset_subset}_{prompt_lang}_{prompt_id}_{MODEL.split("/")[-1]}.csv', index=False)
 
             cls_report = classification_report(golds, preds, output_dict=True)

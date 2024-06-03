@@ -10,7 +10,7 @@ from data_utils import load_nlg_datasets
 import torch
 
 from peft import PeftModel
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, AutoModelForCausalLM, BloomTokenizerFast, set_seed
+from transformers import AutoConfig, AutoTokenizer, AutoModelForSeq2SeqLM, AutoModelForCausalLM, BloomTokenizerFast, set_seed
 from nusacrowd.utils.constants import Tasks
 
 from sacremoses import MosesTokenizer
@@ -148,6 +148,10 @@ if __name__ == '__main__':
     # Load prompt
     prompt_templates = get_prompt(prompt_lang)
 
+    if os.path.exists(f'{metric_dir}/nlg_results_{prompt_lang}_{N_SHOT}_{MODEL.split("/")[-1]}.csv'):
+        print(f'Skipping {metric_dir}/nlg_results_{prompt_lang}_{N_SHOT}_{MODEL.split("/")[-1]}.csv')    
+        sys.exit(0)
+    
     # Load Dataset
     print('Load NLG Datasets...')
     nlg_datasets = load_nlg_datasets()
