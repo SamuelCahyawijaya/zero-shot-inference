@@ -157,7 +157,7 @@ if __name__ == '__main__':
         few_shot_data = nlg_dset['train']
 
         for prompt_id, prompt_template in enumerate(prompt_templates[task_type.value]):
-            if len(prompt_id) > 0:
+            if prompt_id > 0:
                 break
             inputs = []
             preds = []

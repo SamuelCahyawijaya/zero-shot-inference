@@ -146,7 +146,7 @@ if __name__ == '__main__':
         label_to_id_dict = { l : i for i, l in enumerate(label_names)}
         
         for prompt_id, prompt_template in enumerate(TASK_TYPE_TO_PROMPT[task_type.value]):
-            if len(prompt_id) > 0:
+            if prompt_id > 0:
                 break
             inputs, preds, outs, golds = [], [], [], []
             
