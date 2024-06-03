@@ -5,23 +5,27 @@ import datasets
 from enum import Enum
 
 NLU_TASK_LIST = [
-    # 'indotacos',
-    # 'indo_law',
-    'id_hsd_nofaaulia',
+    # Indo
+    'emot',
     'wrete',
-    'id_short_answer_grading',
-    'id_google_play_review',
-    'id_stance',
-    'indolem_ntp',
-    'id_google_play_review_posneg',
-    'jadi_ide',
-    'code_mixed_jv_id_jv',
-    'nusax_senti_ace',
-    'nusax_senti_ban',
-    'nusax_senti_bjn',
-    'nusax_senti_bug',
-    'nusax_senti_mad',
-    'nusax_senti_nij',    
+    'smsa',
+    'nusax_senti_ind',
+    'nusax_senti_eng',
+    # Local
+    'nusax_senti_ace', 'nusax_senti_ban', 'nusax_senti_bjn', 'nusax_senti_bbc', 'nusax_senti_bug', 
+    'nusax_senti_jav', 'nusax_senti_mad', 'nusax_senti_min', 'nusax_senti_nij', 'nusax_senti_sun',
+    'nusatranslation_senti_abs', 'nusatranslation_senti_btk', 'nusatranslation_senti_bew', 'nusatranslation_senti_bhp', 
+    'nusatranslation_senti_jav', 'nusatranslation_senti_mad', 'nusatranslation_senti_mak', 'nusatranslation_senti_min', 
+    'nusatranslation_senti_mui', 'nusatranslation_senti_rej', 'nusatranslation_senti_sun',
+    'nusatranslation_emot_abd', 'nusatranslation_emot_btk', 'nusatranslation_emot_bew', 'nusatranslation_emot_bug',
+    'nusatranslation_emot_jav', 'nusatranslation_emot_mad', 'nusatranslation_emot_mak', 'nusatranslation_emot_min', 
+    'nusatranslation_emot_mui', 'nusatranslation_emot_rej', 'nusatranslation_emot_sun',
+    'nusaparagraph_topic_btk', 'nusaparagraph_topic_bew', 'nusaparagraph_topic_bug', 'nusaparagraph_topic_jav', 'nusaparagraph_topic_mad',
+    'nusaparagraph_topic_mak', 'nusaparagraph_topic_min', 'nusaparagraph_topic_mui', 'nusaparagraph_topic_rej', 'nusaparagraph_topic_sun',
+    'nusaparagraph_rhetoric_btk', 'nusaparagraph_rhetoric_bew', 'nusaparagraph_rhetoric_bug', 'nusaparagraph_rhetoric_jav', 'nusaparagraph_rhetoric_mad',
+    'nusaparagraph_rhetoric_mak', 'nusaparagraph_rhetoric_min', 'nusaparagraph_rhetoric_mui', 'nusaparagraph_rhetoric_rej', 'nusaparagraph_rhetoric_sun',
+    'nusaparagraph_emot_btk', 'nusaparagraph_emot_bew', 'nusaparagraph_emot_bug', 'nusaparagraph_emot_jav', 'nusaparagraph_emot_mad',
+    'nusaparagraph_emot_mak', 'nusaparagraph_emot_min', 'nusaparagraph_emot_mui', 'nusaparagraph_emot_rej', 'nusaparagraph_emot_sun',
 ]
 
 NLU_TASK_LIST_EXTERNAL = [
@@ -37,24 +41,22 @@ NLU_TASK_LIST_EXTERNAL = [
 ]
 
 NLG_TASK_LIST = [
-    # 'korpus_nusantara_ind_xdy',
-    # 'korpus_nusantara_ind_bug',
-    # 'korpus_nusantara_ind_mad',
-    # 'korpus_nusantara_ind_bjn',
-    # 'korpus_nusantara_ind_tiociu',
-    # 'korpus_nusantara_xdy_ind',
-    # 'korpus_nusantara_bug_ind',
-    # 'korpus_nusantara_mad_ind',
-    # 'korpus_nusantara_bjn_ind',
-    # 'korpus_nusantara_tiociu_ind',
-    # 'korpus_nusantara_ind_jav',
-    # 'korpus_nusantara_ind_sun',
-    # 'korpus_nusantara_jav_ind',
-    # 'korpus_nusantara_sun_ind',
-    'xl_sum',
-    'xpersona_id',
-    'stif_indonesia',
+    # Indo
+    'nusax_mt_eng_ind',
+    'nusax_mt_ind_eng',
+    'liputan6',
     'tydiqa_id',
+    # Local
+    'nusax_mt_ind_ace', 'nusax_mt_ind_ban', 'nusax_mt_ind_bjn', 'nusax_mt_ind_bbc', 'nusax_mt_ind_bug', 
+    'nusax_mt_ind_jav', 'nusax_mt_ind_mad', 'nusax_mt_ind_min', 'nusax_mt_ind_nij', 'nusax_mt_ind_sun',
+    'nusax_mt_ace_ind', 'nusax_mt_ban_ind', 'nusax_mt_bjn_ind', 'nusax_mt_bbc_ind', 'nusax_mt_bug_ind', 
+    'nusax_mt_jav_ind', 'nusax_mt_mad_ind', 'nusax_mt_min_ind', 'nusax_mt_nij_ind', 'nusax_mt_sun_ind',
+    'nusatranslation_mt_ind_abs', 'nusatranslation_mt_ind_btk', 'nusatranslation_mt_ind_bew', 'nusatranslation_mt_ind_bug', 
+    'nusatranslation_mt_ind_jav', 'nusatranslation_mt_ind_mad', 'nusatranslation_mt_ind_mak', 'nusatranslation_mt_ind_min', 
+    'nusatranslation_mt_ind_mui', 'nusatranslation_mt_ind_rej', 'nusatranslation_mt_ind_sun',
+    'nusatranslation_mt_abs_ind', 'nusatranslation_mt_btk_ind', 'nusatranslation_mt_bew_ind', 'nusatranslation_mt_bug_ind',
+    'nusatranslation_mt_jav_ind', 'nusatranslation_mt_mad_ind', 'nusatranslation_mt_mak_ind', 'nusatranslation_mt_min_ind', 
+    'nusatranslation_mt_mui_ind', 'nusatranslation_mt_rej_ind', 'nusatranslation_mt_sun_ind',
 ]
 
 FLORES200_TASK_LIST = [
@@ -80,7 +82,7 @@ def load_nlu_datasets():
         con.config.name: (con.load_dataset(), list(con.tasks)[0])
         for con in nc_conhelp.filtered(lambda x: x.config.name.replace(x.config.schema, '')[:-1] in NLU_TASK_LIST and 'nusantara_' in x.config.schema)
     } # {config_name: (datasets.Dataset, task_name)
-    
+
     return cfg_name_to_dset_map
 
 def load_external_nlu_datasets(lang='ind'):
