@@ -653,6 +653,7 @@ LABEL_LANG_MAP ={
 LANG_MAP = {
     'eng': {
         'ind': 'Indonesian',
+        'eng': 'English',
         'xdy': 'Dayak',
         'abs': 'Ambonese',
         'bhp': 'Bimanese',
@@ -673,6 +674,7 @@ LANG_MAP = {
     },
     'ind': {
         'ind': 'Indonesia',
+        'eng': 'Inggris',
         'xdy': 'Dayak',
         'abs': 'Ambon',
         'bhp': 'Bima',
