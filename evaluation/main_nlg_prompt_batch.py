@@ -181,6 +181,10 @@ if __name__ == '__main__':
         base_model = AutoModelForCausalLM.from_pretrained(MODEL, device_map="auto", load_in_8bit=True, resume_download=True)
         model = PeftModel.from_pretrained(base_model, ADAPTER, torch_dtype=torch.float16)
         MODEL = ADAPTER  # for file naming
+    elif 'mala-500' in MODEL:
+        base_model = AutoModelForCausalLM.from_pretrained('meta-llama/Llama-2-7b-hf', **fp16_args)
+        base_model.resize_token_embeddings(260164)
+        model = PeftModel.from_pretrained(base_model, MODEL).merge_and_unload()
     elif "gpt" in MODEL or "text" in MODEL:
         model = None
     elif "mt0" in MODEL or "mt5" in MODEL:
