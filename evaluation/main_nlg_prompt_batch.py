@@ -187,14 +187,18 @@ if __name__ == '__main__':
         model = PeftModel.from_pretrained(base_model, MODEL).merge_and_unload()
     elif "gpt" in MODEL or "text" in MODEL:
         model = None
+    elif "aya" in MODEL:
+        extra_args = fp16_args
+        model = AutoModelForSeq2SeqLM.from_pretrained(MODEL, resume_download=True, **extra_args)
     elif "mt0" in MODEL or "mt5" in MODEL:
         extra_args = fp16_args if "xxl" in MODEL else {}
         model = AutoModelForSeq2SeqLM.from_pretrained(MODEL, resume_download=True, **extra_args)
         if "xxl" not in MODEL:
             model = model.to('cuda')
     else:
-        extra_args = fp16_args if "7b" in MODEL.lower() or "13b" in MODEL.lower() else {}
-        model = AutoModelForCausalLM.from_pretrained(MODEL, resume_download=True, trust_remote_code=trust_remote_code, **extra_args)
+        print('HELLO')
+        # extra_args = fp16_args if "7b" in MODEL.lower() or "13b" in MODEL.lower() else {}
+        model = AutoModelForCausalLM.from_pretrained(MODEL, resume_download=True, trust_remote_code=trust_remote_code, **fp16_args)
         if "SeaLLM" in MODEL or "llama" in MODEL:
             # quick fix for tensor error
             # https://github.com/facebookresearch/llama/issues/380
@@ -204,7 +208,7 @@ if __name__ == '__main__':
         model.eval()
 
     metrics = {'dataset': []}
-    for i, dset_subset in enumerate(nlg_datasets.keys()):
+    for i, dset_subset in enumerate(sorted(nlg_datasets.keys())[20:32]):
         nlg_dset, task_type = nlg_datasets[dset_subset]
         print(f"{i} {dset_subset} {task_type}")
         

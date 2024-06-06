@@ -128,14 +128,19 @@ if __name__ == '__main__':
     tokenizer = AutoTokenizer.from_pretrained(MODEL, truncation_side='left', padding_side='right', trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token if tokenizer.eos_token is not None else tokenizer.bos_token
-        
-    config = AutoConfig.from_pretrained(MODEL, trust_remote_code=True)
+
+    try:
+        config = AutoConfig.from_pretrained(MODEL, trust_remote_code=True)
+    except:
+        pass
+
     if ADAPTER != "":
         model = AutoModelForCausalLM.from_pretrained(MODEL, device_map="auto", load_in_8bit=True, trust_remote_code=True)
         model = PeftModel.from_pretrained(model, ADAPTER, torch_dtype=torch.float16)
         MODEL = ADAPTER # for file naming
     elif 'mala-500' in MODEL:
-        base_model = AutoModelForCausalLM.from_pretrained('meta-llama/Llama-2-7b-hf')
+        fp16_args = {'device_map': "auto", 'torch_dtype': torch.float16, 'load_in_8bit': True}  # needed for larger model
+        base_model = AutoModelForCausalLM.from_pretrained('meta-llama/Llama-2-7b-hf', **fp16_args)
         base_model.resize_token_embeddings(260164)
         model = PeftModel.from_pretrained(base_model, 'MaLA-LM/mala-500-10b').merge_and_unload()
     elif not config.is_encoder_decoder:

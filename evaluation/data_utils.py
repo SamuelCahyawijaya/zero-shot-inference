@@ -44,7 +44,7 @@ NLG_TASK_LIST = [
     # Indo
     'nusax_mt_eng_ind',
     'nusax_mt_ind_eng',
-    'liputan6',
+    'liputan6_xtreme',
     'tydiqa_id',
     # Local
     'nusax_mt_ind_ace', 'nusax_mt_ind_ban', 'nusax_mt_ind_bjn', 'nusax_mt_ind_bbc', 'nusax_mt_ind_bug', 
