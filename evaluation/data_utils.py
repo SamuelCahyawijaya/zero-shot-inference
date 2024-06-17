@@ -42,6 +42,7 @@ NLU_TASK_LIST_EXTERNAL = [
 
 NLG_TASK_LIST = [
     # Indo
+    'ted_en_id',
     'nusax_mt_eng_ind',
     'nusax_mt_ind_eng',
     'liputan6_xtreme',
@@ -153,6 +154,18 @@ def load_nlg_datasets():
         con.config.name: (con.load_dataset(), list(con.tasks)[0])
         for con in nc_conhelp.filtered(lambda x: x.config.name.replace(x.config.schema, '')[:-1] in NLG_TASK_LIST and 'nusantara_' in x.config.schema)
     } # {config_name: (datasets.Dataset, task_name)
+
+    # Hack
+    for k, (dset, task) in cfg_name_to_dset_map.items():
+        if k == 'ted_en_id':
+            def swap_text(row):
+                tmp, tmp_name = row['text_1'], row['text_1_name']
+                row['text_1'], row['text_1_name'] = row['text_2'], row['text_2_name']
+                row['text_2'], row['text_2_name'] = tmp, tmp_name
+                return row
+            rev_dset = dset.map(swap_text)
+            cfg_name_to_dset_map['ted_id_en'] = rev_dset
+            print(rev_dset['text'][0])
     return cfg_name_to_dset_map
 
 def load_flores_datasets():
